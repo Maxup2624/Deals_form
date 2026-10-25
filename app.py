@@ -200,8 +200,29 @@ else:
                 c.metric("Average commission", f'{df["commission_pct"].mean():.1f}%')
 
                 st.markdown("### Submissions by role")
-                role_counts = df.groupby("role", as_index=False).size().rename(columns={"size": "Submissions"})
-                st.bar_chart(role_counts.set_index("role"))
+                import matplotlib.pyplot as plt
+
+                role_counts = (
+                    df.groupby("role", as_index=False)
+                    .size()
+                    .rename(columns={"size": "Submissions"})
+                )
+
+                fig, ax = plt.subplots(figsize=(8, 4))
+
+                ax.bar(
+                    role_counts["role"],
+                    role_counts["Submissions"]
+                )
+
+                ax.set_xlabel("Role")
+                ax.set_ylabel("Number of submissions")
+                ax.set_title("Submissions by Role")
+                ax.bar_label(ax.containers[0], padding=3)
+
+                fig.tight_layout()
+                st.pyplot(fig)
+                plt.close(fig)
 
                 st.markdown("### Deal terms by role")
                 terms = df.groupby("role")[["royalty_pct", "cash_equity_pct", "commission_pct"]].mean().round(2)
