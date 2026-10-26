@@ -278,7 +278,7 @@ elif page == "Submit final deal":
         submit = st.form_submit_button("Submit final deal", type="primary", use_container_width=True)
 
     if submit:
-        normalized_group = group_number.strip()
+        normalized_group = str(st.session_state["participant_group"]).strip()
         accepted = accepted_label == "Yes"
         if not normalized_group:
             st.error("Enter your group number.")
