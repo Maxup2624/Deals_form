@@ -201,6 +201,29 @@ ROLE_CARDS = {
     },
 }
 
+# ---------- Student entry gate ----------
+# Role and group are selected once per Streamlit browser session. No role selector is
+# rendered anywhere after entry, so students cannot switch roles using the app controls.
+if "participant_group" not in st.session_state or "participant_role" not in st.session_state:
+    st.subheader("Enter the negotiation room")
+    st.write("Enter your group number and select your assigned role. Your selection will remain fixed for this browser session.")
+    with st.form("participant_entry_form", clear_on_submit=False):
+        entry_group = st.text_input("Group number", placeholder="e.g., 7 or Group 7", max_chars=40)
+        entry_role = st.selectbox("Your assigned role", list(ROLE_CARDS.keys()))
+        enter_room = st.form_submit_button("Enter negotiation room", type="primary", use_container_width=True)
+    if enter_room:
+        if not entry_group.strip():
+            st.error("Enter your group number before continuing.")
+        else:
+            st.session_state["participant_group"] = entry_group.strip()
+            st.session_state["participant_role"] = entry_role
+            st.rerun()
+    st.stop()
+
+participant_group = st.session_state["participant_group"]
+role = st.session_state["participant_role"]
+st.info(f"**Current participant:** {participant_group}  ·  **Role:** {role}")
+
 # ---------- Navigation ----------
 page = st.radio(
     "Choose view",
@@ -210,9 +233,8 @@ page = st.radio(
 )
 
 if page == "Role instructions":
-    st.subheader("Choose your role")
-    st.warning("Role instructions and scorecards are confidential. Select only your assigned role and do not show your scorecard to the other negotiators.")
-    role = st.selectbox("Your role", list(ROLE_CARDS.keys()))
+    st.subheader("Your role instructions")
+    st.warning("Your role is fixed for this browser session. Keep your role card and scorecard confidential from the other negotiators.")
     card = ROLE_CARDS[role]
     st.markdown(f"### Objective\n{card['objective']}")
     st.markdown("### Your private information")
@@ -237,7 +259,7 @@ elif page == "Submit final deal":
     st.write("Agree the terms together before submitting. Zhou's deferral is calculated automatically as $800,000 minus Yang's prepayment.")
 
     with st.form("final_deal_form", clear_on_submit=False):
-        group_number = st.text_input("Group number", placeholder="e.g., 7 or Group 7", max_chars=40)
+        st.text_input("Group number", value=participant_group, disabled=True)
         prepayment_label = st.selectbox("Yang's cash prepayment", ["$0", "$400,000", "$800,000"], index=1)
         prepayment_map = {"$0": 0, "$400,000": 400000, "$800,000": 800000}
         prepayment = prepayment_map[prepayment_label]
@@ -384,4 +406,4 @@ else:
         st.error("Incorrect password.")
 
 st.markdown("---")
-st.markdown('<p class="small-note">Use one final submission per group. The original deal_submissions table and your existing Streamlit secrets are left unchanged. The new simulation stores its results in a separate jill_draeger_deals table.</p>', unsafe_allow_html=True)
+st.markdown('<p class="small-note">Use one final submission per group. Role selection is fixed for the current browser session. The original deal_submissions table and your existing Streamlit secrets are left unchanged. The new simulation stores its results in a separate jill_draeger_deals table.</p>', unsafe_allow_html=True)
