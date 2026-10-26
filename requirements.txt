@@ -1,4 +1,6 @@
-streamlit
+streamlit==1.50.0
+duckdb==1.4.3
+pandas>=2.2,<3.0
+matplotlib
+
 streamlit-autorefresh>=1.0.1
-duckdb
-pandas
